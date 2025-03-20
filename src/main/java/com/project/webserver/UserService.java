@@ -1,5 +1,6 @@
 package com.project.webserver;
 
+import org.apache.coyote.Response;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +14,6 @@ import java.util.Map;
 public class UserService {
 
     public static void main(String[] args) {
-        System.out.println("hi");
         SpringApplication.run(UserService.class, args);
     }
 
@@ -33,6 +33,13 @@ public class UserService {
         response.put("id", id);
         response.put("vin", getRandomVin());
 
+        //Actual logic
+        //form connection to db, query for user id
+
+        //validations on user id returning data
+
+        //return data
+
         return ResponseEntity.ok(response);
     }
 
@@ -46,6 +53,17 @@ public class UserService {
 
         //return response
         return ResponseEntity.ok("ugh");
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<Object> updateUserInformation(@RequestBody Map<String, String> updatedInfo) {
+        //logic
+        //get existing user account, throw precondition failed if none
+        //if account exists, validate that the immutable fields (vin and size class?) are not changed, if they are then throw error
+
+        //update other values in db
+        //return 200
+        return ResponseEntity.ok("yeah i guess that's updated");
     }
 
     private static String getRandomVin() {
