@@ -1,7 +1,6 @@
-package com.project.webserver;
+package com.project.webserver.service;
 
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 //@SpringBootApplication
 public class RouteService {
