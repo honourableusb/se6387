@@ -24,9 +24,10 @@ public class FirebaseConfig {
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                     .build();
 
-            FirebaseApp.initializeApp(options);
+//            FirebaseApp.initializeApp(options);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
 }
