@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
 
+import static com.project.webserver.TestUtilities.*;
+
 
 @SpringBootTest
 //@Run( SpringJUnit4ClassRunner.class )
@@ -134,18 +136,6 @@ class UserServiceTests {
 
 	private ResponseEntity changePassword(String userEmail, String newPwd) {
 		return controller.forgetPassword(userEmail, newPwd);
-	}
-
-	private static void checkOK(ResponseEntity resp) {
-        Assertions.assertEquals(200, resp.getStatusCode().value());
-	}
-
-	private static void checkNotOK(ResponseEntity resp) {
-		Assertions.assertNotEquals(200, resp.getStatusCode().value());
-	}
-
-	private static void checkEntity(ResponseEntity resp, Object object) {
-        Assertions.assertEquals(resp.getBody(), object);
 	}
 
 	private static String userSuccess() {
