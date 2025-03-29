@@ -4,7 +4,7 @@ public class User {
     private String password="";
     private String email="";
     private String vin="";
-    private String licesePlate="";
+    private String licensePlate ="";
 
 //    Getter Setters
     public String getUsername() {
@@ -34,12 +34,12 @@ public class User {
     public void setVin(String vin) {
         this.vin = vin;
     }
-    public String getLicesePlate() {
+    public String getLicensePlate() {
 
-        return licesePlate;
+        return licensePlate;
     }
-    public void setLicesePlate(String licesePlate) {
-        this.licesePlate = licesePlate;
+    public void setLicensePlate(String licensePlate) {
+        this.licensePlate = licensePlate;
     }
 
 }

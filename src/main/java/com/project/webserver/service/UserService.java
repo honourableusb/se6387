@@ -1,9 +1,16 @@
 package com.project.webserver.service;
 
 import com.project.webserver.model.User;
+import org.apache.coyote.Response;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
 public class UserService implements IUserService  {
     private User user;
     private FirebaseService firebaseService = new FirebaseService();
+    //TODO logger
+    //TODO return responses from here, we want a bit more precision than Response.ok at the controller level
+
     @Override
     public String addUserHandler(String username, String password,String vin
             ,String licensePlate, String email){
@@ -14,7 +21,7 @@ public class UserService implements IUserService  {
         user.setPassword(password);
         user.setVin(vin);
         user.setEmail(email);
-        user.setLicesePlate(licensePlate);
+        user.setLicensePlate(licensePlate);
         return addUser();
     }
 
@@ -25,16 +32,15 @@ public class UserService implements IUserService  {
         return firebaseService.addUserDB(user);
     }
 
-    private boolean authenticate(String username,String password){
+    private ResponseEntity authenticate(String username, String password){
         System.out.println("Reached Login Service");
 //        firebaseService=new FirebaseService();
 
         return firebaseService.authenticateUserDB(username,password);
     }
 
-    public String authenticateHandler(String username, String password){
-        boolean auth=authenticate(username,password);
-        return auth ?"Login Successful":"Login Failed";
+    public ResponseEntity authenticateHandler(String username, String password){
+        return authenticate(username,password);
     }
 
     private String updatePassword(String email,String password){
@@ -51,7 +57,15 @@ public class UserService implements IUserService  {
         this.firebaseService = firebaseService;
     }
 
-    public String deleteUser(User user) {
-        return this.firebaseService.deleteUser(user);
+    public String deleteUser(String username) {
+        return this.firebaseService.deleteUser(username);
+    }
+
+    public ResponseEntity getUser(String username) {
+        User user = this.firebaseService.getUser(username);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+        return ResponseEntity.ok(user);
     }
 }

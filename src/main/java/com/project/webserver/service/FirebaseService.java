@@ -3,11 +3,11 @@ package com.project.webserver.service;
 
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.internal.NonNull;
 import com.project.webserver.model.User;
 import org.springframework.core.env.Environment;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.FileInputStream;
@@ -20,20 +20,18 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
-import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.*;
 //import org.springF
 
 import javax.annotation.Resource;
-import javax.swing.text.Document;
 
 @Service
 public class FirebaseService {
+    //TODO logger
     @Resource
     public Environment env;
     private Firestore firestore;// Inject the path from application.properties
     @Value("${firebase.credentials.path}")
-    private String path = "/Users/aditilve/Desktop/Application/freightflow-7c94c-firebase-adminsdk-fbsvc-d9199f8420.json";
+    private String path = "/Users/matthewhaskell/Documents/freightflow-7c94c-firebase-adminsdk-fbsvc-d9199f8420.json";
 
     public String getPath() {
         return path;
@@ -70,7 +68,7 @@ public class FirebaseService {
             userData.put("username", user.getUsername());
             userData.put("password", user.getPassword());  // **HASH THIS PASSWORD**
             userData.put("vin", user.getVin());
-            userData.put("licensePlate", user.getLicesePlate());
+            userData.put("licensePlate", user.getLicensePlate());
             userData.put("email", user.getEmail());
             //TODO this doesn't check if there's already a user with this email it seems
             WriteResult result;
@@ -80,7 +78,7 @@ public class FirebaseService {
             else {
                 return "A User already exists with that username. If you wish to change the information for that user, please use another API.";
             }
-            return "User added to Firestore successfully! Update time: " + result.getUpdateTime();
+            return "User added to Firestore successfully!";
         } catch (Exception e) {
             e.printStackTrace();
             return "Error adding user to Firebase: " + e.getMessage();
@@ -102,7 +100,8 @@ public class FirebaseService {
     }
 
     //TODO break out to UserService
-    public boolean authenticateUserDB(String username, String password) {
+    //TODO more elaboration than boolean, return an enum???
+    public ResponseEntity authenticateUserDB(String username, String password) {
         try {
             Firestore db = FirestoreClient.getFirestore();
             DocumentReference docRef = db.collection("users").document(username);
@@ -118,16 +117,16 @@ public class FirebaseService {
                 // 3. Compare the hashed passwords.
 
                 if (storedPassword != null && storedPassword.equals(password)) {
-                    return true; // Passwords match
+                    return ResponseEntity.ok("Authentication Successful"); // Passwords match
                 } else {
-                    return false; // Incorrect password
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Authentication Failed"); // Incorrect password
                 }
             } else {
-                return false; // User not found
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Authentication Failed"); // User not found
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return false; // Error occurred
+            return ResponseEntity.internalServerError().body(e.getStackTrace()); // Error occurred
         }
     }
 
@@ -158,16 +157,37 @@ public class FirebaseService {
         }
     }
 
-    public String deleteUser(User user) {
+    public String deleteUser(String username) {
         Firestore db = FirestoreClient.getFirestore();
         try {
-            db.collection("users").document(user.getUsername()).delete();
-            System.out.printf("user deleted: %s\n", user.getUsername());
-            return "User successfully deleted";
+            db.collection("users").document(username).delete();
+            System.out.printf("user deleted: %s\n", username);
+            return "User successfully deleted"; //TODO response returns
 //        ApiFuture<QuerySnapshot> querySnapshot = query.get();
         } catch (Exception e) {
-            System.out.printf("user %s failed to delete. Exception: %s\n", user.getUsername(), e);
+            System.out.printf("user %s failed to delete. Exception: %s\n", username, e);
             return "There was an issue deleting this user";
         }
+    }
+
+    public User getUser(String username) {
+        Firestore db = FirestoreClient.getFirestore();
+        User user = new User();
+        try {
+            ApiFuture<DocumentSnapshot> query = db.collection("users").document(username).get();
+            Map data = query.get().getData();
+            if (data != null && !data.isEmpty()) {
+                user.setVin((String) data.get("vin"));
+                user.setPassword((String) data.get("password"));
+                user.setEmail((String) data.get("email"));
+                user.setUsername((String) data.get("username"));
+                user.setLicensePlate((String) data.get("licensePlate"));
+            }
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        return user;
     }
 }

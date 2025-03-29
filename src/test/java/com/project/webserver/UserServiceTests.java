@@ -1,86 +1,96 @@
 package com.project.webserver;
 
+import com.project.webserver.controller.UserController;
 import com.project.webserver.model.User;
-import com.project.webserver.service.UserService;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.ResponseEntity;
 
-import static org.mockito.Mockito.mock;
 
 @SpringBootTest
+//@Run( SpringJUnit4ClassRunner.class )
 class UserServiceTests {
 	static User goodUser;
 	static User badUser;
-	static String thirdUsername = "user3!";
-	static UserService userService;
-//	private Assertions Assert;
+
+//	@Autowired
+	private static UserController controller;
 
 	@Test
 	void contextLoads() {
+        Assertions.assertNotNull(controller);
 	}
 
 	@BeforeAll
 	public static void init() {
 		System.out.println("startup reached");
-		userService = new UserService();
 		goodUser = generateUserProfile("goodUser", "goodPass", "123",
 				"AAA1234", "testEmail@email.com");
 		badUser = generateUserProfile("badUser", "badPass", "456",
 				"BBB5678", "test@bad.com");
+		if (controller == null) {
+			controller = new UserController();
+		}
 		System.out.println("startup completed");
 	}
 
 	@Test
 	public void testAddUser() {
 		//test1: add new user
-		String resp = userService.addUserHandler("goodUser", "goodPass", "123",
-				"AAA1234", "testEmail@email.com");
-		Assertions.assertTrue(resp.contains("User added to Firestore successfully!"));
+		ResponseEntity resp = createUser(goodUser);
+		checkOK(resp);
+		checkEntity(resp, userSuccess());
+	}
+
+	@Test
+	public void testAddUserExisting() {
 		//test2: add existing user
-		resp = userService.addUserHandler("goodUser", "goodPass", "123",
-				"AAA1234", "testEmail@email.com");
-		Assertions.assertTrue(resp.contains("A User already exists with that username."));
-		userService.addUserHandler("badUser", "badPass", "456",
-				"BBB5678", "test@bad.com");
+		ResponseEntity resp = createUser(goodUser);
+		checkOK(resp);
+		checkEntity(resp, userExists());
 	}
 
 	@Test
-	public void testLogin() {
-		//we need users first
-		testAddUser();
-		//test1 good pass
-		String resp = userService.authenticateHandler(goodUser.getUsername(), goodUser.getPassword());
-		Assertions.assertTrue(resp.equals("Login Successful"));
-		resp = userService.authenticateHandler(goodUser.getUsername(), badUser.getPassword());
-		Assertions.assertTrue(resp.equals("Login Failed"));
-		resp = userService.authenticateHandler(thirdUsername, goodUser.getPassword());
-		Assertions.assertTrue(resp.equals("Login Failed"));
-
+	public void testLoginSuccess() {
+		ResponseEntity resp = authenticateUser(goodUser);
+		checkOK(resp);
+		checkEntity(resp, loginSuccess());
 	}
 
 	@Test
-	public void testChangePassword() {
-		// we need users
-		testAddUser();
-		//change one of their passwords
+	public void testLoginFail() {
+		ResponseEntity resp = authenticateUser(goodUser, badUser.getPassword());
+		checkNotOK(resp);
+		checkEntity(resp, loginFailure());
+	}
+
+	@Test
+	public void testLoginNoUserExists() {
+		ResponseEntity resp = authenticateUser(badUser);
+		checkNotOK(resp);
+		checkEntity(resp, loginFailure());
+	}
+
+	@Test
+	public void testPasswordChange(){
+		//check if user exists
+		ResponseEntity resp = getOrCreateUser(goodUser);
+		checkOK(resp);
+		//get old password
 		String oldPassword = goodUser.getPassword();
-		String resp = userService.updatePasswordHandler(goodUser.getEmail(), badUser.getPassword());
-		Assertions.assertTrue(resp.equals("Password updated successfully!"));
-		//test login of new password
-		resp = userService.authenticateHandler(goodUser.getUsername(), badUser.getPassword());
-		Assertions.assertTrue(resp.equals("Login Successful"));
-		//test login attempt with old password
-		resp = userService.authenticateHandler(goodUser.getUsername(), oldPassword);
-		Assertions.assertTrue(resp.equals("Login Failed"));
-		//test no account found
-		resp = userService.updatePasswordHandler("fake@email.com", "testpwd");
-		Assertions.assertTrue(resp.equals("Email not found "));
-		//test password to the same password -> is that allwoed??
-		resp = userService.updatePasswordHandler(goodUser.getEmail(), goodUser.getPassword());
-		Assertions.assertTrue(resp.equals("Password updated successfully!"));
+		resp = authenticateUser(goodUser, goodUser.getPassword());
+		checkOK(resp);
+		resp = changePassword(goodUser.getEmail(), badUser.getPassword());
+		checkOK(resp);
+		//check login with new password
+		resp = authenticateUser(goodUser, badUser.getPassword());
+		checkOK(resp);
+		//check login with old password
+		resp = authenticateUser(goodUser, oldPassword);
+		checkNotOK(resp);
 	}
 
 	public static User generateUserProfile(String userName, String password,
@@ -90,15 +100,68 @@ class UserServiceTests {
 		resp.setEmail(email);
 		resp.setVin(vin);
 		resp.setPassword(password);
-		resp.setLicesePlate(licensePlate);
+		resp.setLicensePlate(licensePlate);
 		return resp;
 	}
 
 	@AfterAll
 	public static void tearDown() {
-		userService.deleteUser(goodUser);
-		userService.deleteUser(badUser);
+		controller.deleteUser(goodUser.getUsername());
+		controller.deleteUser(badUser.getUsername());
 	}
 
+	private ResponseEntity getOrCreateUser(User user) {
+		ResponseEntity resp = controller.getUser(user.getUsername());
+		if (resp.getStatusCode().value() == 200) {
+			return resp;
+		}
+		else {
+			return createUser(user);
+		}
+	}
+
+	private ResponseEntity createUser(User user) {
+		return controller.createUser(user.getUsername(), user.getPassword(), user.getVin(), user.getLicensePlate(), user.getEmail());
+	}
+
+	private ResponseEntity authenticateUser(User user) {
+		return controller.login(user.getUsername(), user.getPassword());
+	}
+
+	private ResponseEntity authenticateUser(User user, String pwd) {
+		return controller.login(user.getUsername(), pwd);
+	}
+
+	private ResponseEntity changePassword(String userEmail, String newPwd) {
+		return controller.forgetPassword(userEmail, newPwd);
+	}
+
+	private static void checkOK(ResponseEntity resp) {
+        Assertions.assertEquals(200, resp.getStatusCode().value());
+	}
+
+	private static void checkNotOK(ResponseEntity resp) {
+		Assertions.assertNotEquals(200, resp.getStatusCode().value());
+	}
+
+	private static void checkEntity(ResponseEntity resp, Object object) {
+        Assertions.assertEquals(resp.getBody(), object);
+	}
+
+	private static String userSuccess() {
+		return "User added to Firestore successfully!";
+	}
+
+	private static String userExists() {
+		return "A User already exists with that username. If you wish to change the information for that user, please use another API.";
+	}
+
+	private static String loginSuccess() {
+		return "Authentication Successful";
+	}
+
+	private static String loginFailure() {
+		return "Authentication Failed";
+	}
 
 }
