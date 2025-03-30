@@ -7,7 +7,7 @@ public class CargoBay {
     String truckID;
 
     public CargoBay() {
-
+        truckID = "";
     }
 
     public void setId(String id) {

@@ -182,6 +182,8 @@ public class FirebaseService {
                 user.setEmail((String) data.get("email"));
                 user.setUsername((String) data.get("username"));
                 user.setLicensePlate((String) data.get("licensePlate"));
+            } else {
+                return null;
             }
         } catch (ExecutionException e) {
             throw new RuntimeException(e);

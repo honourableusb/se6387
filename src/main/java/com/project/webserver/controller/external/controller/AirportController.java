@@ -1,16 +1,12 @@
 package com.project.webserver.controller.external.controller;
 
-import com.project.webserver.model.airport.Flight;
 import com.project.webserver.service.external.AirportService;
 import jakarta.websocket.server.PathParam;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.QueryParam;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Flux;
 
 @RestController
 
@@ -25,20 +21,30 @@ public class AirportController {
         return service.getFlights();
     }
 
+    @GetMapping("/flights/{id}")
+    public ResponseEntity getFlight(@PathParam("id") String id) {
+        return service.getFlight(id);
+    }
+
     //------------------------------Cargo Bays------------------------------
 
     @GetMapping("/cargo")
-    public ResponseEntity getAllCargoSpaces() {
+    public ResponseEntity getAllCargoBays() {
         return service.getAllCargoBays();
+    }
+    
+    @GetMapping("/cargo/{id}")
+    public ResponseEntity getCargoBay(@PathParam("id") String id) {
+        return service.getCargoBay(id);
     }
 
     @GetMapping("/cargo/available")
-    public ResponseEntity getAvailableCargoSpaces() {
+    public ResponseEntity getAvailableCargoBays() {
         return service.getAvailableCargoBays();
     }
 
     @PostMapping("/cargo/{id}/{truckID}/reserve")
-    public ResponseEntity reserveCargoSpace(@PathParam("id") String id,
+    public ResponseEntity<String> reserveCargoBay(@PathParam("id") String id,
     @PathParam("truckID") String truckID) {
         return service.reserveCargoBay(id, truckID);
     }
@@ -50,25 +56,26 @@ public class AirportController {
         return service.truckArrivedCargo(cargoID, truckID);
     }
 
-    @PostMapping("/cargo/{id}/release")
-    public ResponseEntity releaseCargoSpace(@PathParam("id") String id) {
-        return service.releaseCargoBay(id);
+    @PostMapping("/cargo/{id}/{truckID}/release")
+    public ResponseEntity releaseCargoBay(@PathParam("id") String id,
+                                          @PathParam("truckID") String truckID) {
+        return service.releaseCargoBay(id, truckID);
     }
 
     //------------------------------Parking Bays------------------------------
 
     @GetMapping("/parking")
-    public ResponseEntity getAllParkingSpaces() {
+    public ResponseEntity getAllParkingBays() {
         return service.getParkingBays();
     }
 
     @GetMapping("/parking/available")
-    public ResponseEntity getAvailableParkingSpaces() {
+    public ResponseEntity getAvailableParkingBays() {
         return service.getAvailableParkingBays();
     }
 
     @PostMapping("/parking/{id}/{truckID}/reserve")
-    public ResponseEntity reserveParkingSpace(@PathParam("id") String id,
+    public ResponseEntity reserveParkingBay(@PathParam("id") String id,
                                               @PathParam("truckID") String truckID) {
         return service.reserveParkingBay(id, truckID);
     }
@@ -79,8 +86,14 @@ public class AirportController {
         return service.truckArrivedParking(id, truckID);
     }
 
-    @PostMapping("/parking/{id}/release")
-    public ResponseEntity releaseParkingSpace(@PathParam("id") String id) {
-        return service.releaseParkingBay(id);
+    @PostMapping("/parking/{id}/{truckID}/release")
+    public ResponseEntity releaseParkingBay(@PathParam("id") String id,
+                                            @PathParam("truckID") String truckID) {
+        return service.releaseParkingBay(id, truckID);
+    }
+
+    //NOTE: THIS METHOD IS FOR TESTING ONLY. DON'T CIRCUMVENT CONTROL MECHANISMS.
+    public AirportService getAirportService() {
+        return this.service;
     }
 }

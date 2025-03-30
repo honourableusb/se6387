@@ -7,7 +7,9 @@ public class ParkingBay {
     long truckArriveTime;
     String truckID;
 
-    public ParkingBay() {}
+    public ParkingBay() {
+        truckID = "";
+    }
 
     public void setId(String id) {
         this.id = id;

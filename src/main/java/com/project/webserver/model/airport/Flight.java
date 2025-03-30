@@ -34,4 +34,22 @@ public class Flight {
     public void setState(FlightState state) {
         this.state = state;
     }
+
+    @Override
+    public String toString() {
+        return "Flight Number: %s\n".formatted(this.tailNumber) +
+                "Current Status: %s\n".formatted(this.state.name()) +
+                "Landing Time: %s".formatted(this.landingTime);
+        //TODO add trucks needed and highest classificatio nif implemented
+    }
+
+
+
+    public static Flight of(Flight flight) {
+        Flight out = new Flight();
+        out.setLandingTime(flight.getLandingTime());
+        out.setState(flight.getState());
+        out.setTailNumber(flight.getTailNumber());
+        return out;
+    }
 }

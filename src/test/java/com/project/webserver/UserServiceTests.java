@@ -40,9 +40,15 @@ class UserServiceTests {
 	}
 
 	@Test
+	public void healthCheck() {
+		ResponseEntity resp = controller.healthCheck();
+		checkOK(resp);
+	}
+
+	@Test
 	public void testAddUser() {
 		//test1: add new user
-		ResponseEntity resp = createUser(goodUser);
+		ResponseEntity resp = createUser(goodUser, controller);
 		checkOK(resp);
 		checkEntity(resp, userSuccess());
 	}
@@ -50,7 +56,7 @@ class UserServiceTests {
 	@Test
 	public void testAddUserExisting() {
 		//test2: add existing user
-		ResponseEntity resp = createUser(goodUser);
+		ResponseEntity resp = createUser(goodUser, controller);
 		checkOK(resp);
 		checkEntity(resp, userExists());
 	}
@@ -79,7 +85,7 @@ class UserServiceTests {
 	@Test
 	public void testPasswordChange(){
 		//check if user exists
-		ResponseEntity resp = getOrCreateUser(goodUser);
+		ResponseEntity resp = getOrCreateUser(goodUser, controller);
 		checkOK(resp);
 		//get old password
 		String oldPassword = goodUser.getPassword();
@@ -95,35 +101,17 @@ class UserServiceTests {
 		checkNotOK(resp);
 	}
 
-	public static User generateUserProfile(String userName, String password,
-                                           String vin, String licensePlate, String email) {
-		User resp = new User();
-		resp.setUsername(userName);
-		resp.setEmail(email);
-		resp.setVin(vin);
-		resp.setPassword(password);
-		resp.setLicensePlate(licensePlate);
-		return resp;
+	@Test
+	public void testUserNotExists(){
+		ResponseEntity resp = controller.getUser(badUser.getUsername());
+		checkNotOK(resp);
+		Assertions.assertEquals(404, resp.getStatusCode().value());
 	}
 
 	@AfterAll
 	public static void tearDown() {
 		controller.deleteUser(goodUser.getUsername());
 		controller.deleteUser(badUser.getUsername());
-	}
-
-	private ResponseEntity getOrCreateUser(User user) {
-		ResponseEntity resp = controller.getUser(user.getUsername());
-		if (resp.getStatusCode().value() == 200) {
-			return resp;
-		}
-		else {
-			return createUser(user);
-		}
-	}
-
-	private ResponseEntity createUser(User user) {
-		return controller.createUser(user.getUsername(), user.getPassword(), user.getVin(), user.getLicensePlate(), user.getEmail());
 	}
 
 	private ResponseEntity authenticateUser(User user) {

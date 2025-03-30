@@ -1,8 +1,7 @@
 package com.project.webserver.service.external;
 
-import com.google.api.Http;
 import com.project.webserver.model.airport.*;
-import org.apache.coyote.Response;
+import com.project.webserver.service.FirebaseService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import java.util.Random;
@@ -10,15 +9,14 @@ import java.util.Random;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.project.webserver.service.Constants.*;
+
 public class AirportService {
+    //TODO these three could have a partner on firebase for persistence
     static Map<String, Flight> flightDB;
     static Map<String, CargoBay> cargoBayDB;
     static Map<String, ParkingBay> parkingBayDB;
-
-    //constants
-    final int FLIGHT_STARTING_COUNT = 5;
-    final int CARGO_BAY_COUNT = 12;
-    final int PARKING_BAY_COUNT = 12;
+    FirebaseService firebaseService = new FirebaseService();
 
     public AirportService() {
         populateFlights();
@@ -30,14 +28,38 @@ public class AirportService {
 
     //------------------------------flights------------------------------
 
-    public ResponseEntity getFlights() {
+    public ResponseEntity<Map<String, Flight>> getFlights() {
         return ResponseEntity.ok(flightDB); //returning all the items in the map is computationally expensive for us but given the amount of flights that we have to deal with right now will be fine
+    }
+
+    public ResponseEntity getFlight(String tail) {
+        if (!flightExists(tail)) {
+            return noFlightFound(tail);
+        }
+        return ResponseEntity.ok(flightDB.get(tail));
+    }
+
+    public ResponseEntity updateFlight(Flight flight) {
+        //check flight exists
+        if (!flightExists(flight.getTailNumber())) {
+            return noFlightFound(flight.getTailNumber());
+        }
+        flightDB.put(flight.getTailNumber(), flight);
+        return ResponseEntity.ok("Successfully updated flight %s".formatted(flight.getTailNumber()));
     }
 
     //------------------------------cargo bays------------------------------
 
     public ResponseEntity getAllCargoBays() {
         return ResponseEntity.ok(cargoBayDB);
+    }
+
+    public ResponseEntity getCargoBay(String id) {
+        if (!bayExists(id, BayType.CARGO_BAY)) {
+            //logger here
+            return noBayFound(id);
+        }
+        return ResponseEntity.ok(cargoBayDB.get(id));
     }
 
     public ResponseEntity getAvailableCargoBays() {
@@ -63,6 +85,9 @@ public class AirportService {
             //logger here
             return bayNotAvailable(bayID);
         }
+        if (!userExists(truckID)) {
+            return userNotFound(truckID);
+        }
         //acquire mutex for bay -- nice to have
         //reserve bay
         cargoBayDB.get(bayID).setState(CargoBayState.RESERVED);
@@ -83,7 +108,9 @@ public class AirportService {
             return bayNotReserved(cargoBayID);
         }
         //check if truck exists
-
+        if (!userExists(truckID)) {
+            return userNotFound(truckID);
+        }
         //if bay is reserved, but not by our truck
         if (!cargoBayReservedBy(cargoBayID, truckID)) {
             return wrongTruckForBay(cargoBayID, truckID);
@@ -92,10 +119,16 @@ public class AirportService {
         return truckArrived(cargoBayID, truckID);
     }
 
-    public ResponseEntity releaseCargoBay(String id) {
+    public ResponseEntity releaseCargoBay(String id, String truckID) {
         //check bay exists
         if (!bayExists(id, BayType.CARGO_BAY)) {
             return noBayFound(id);
+        }
+        if (!userExists(truckID)) {
+            return userNotFound(truckID);
+        }
+        if (!cargoBayReservedBy(id, truckID)) {
+            return wrongTruckForBay(id, truckID);
         }
         //remove truck id
         cargoBayDB.get(id).setTruckID("");
@@ -108,6 +141,14 @@ public class AirportService {
 
     public ResponseEntity getParkingBays() {
         return ResponseEntity.ok(parkingBayDB);
+    }
+
+    public ResponseEntity getParkingBay(String id) {
+        if (!bayExists(id, BayType.PARKING_BAY)) {
+            //logger here
+            return noBayFound(id);
+        }
+        return ResponseEntity.ok(parkingBayDB.get(id));
     }
 
     public ResponseEntity getAvailableParkingBays() {
@@ -130,6 +171,9 @@ public class AirportService {
             //logger here
             return bayNotAvailable(bayID);
         }
+        if (!userExists(truckID)) {
+            return userNotFound(truckID);
+        }
         //acquire mutex for bay -- nice to have
         //reserve bay
         cargoBayDB.get(bayID).setState(CargoBayState.RESERVED);
@@ -150,7 +194,9 @@ public class AirportService {
             return bayNotReserved(parkingBayID);
         }
         //check if truck exists
-
+        if (!userExists(truckID)) {
+            return userNotFound(truckID);
+        }
         //if bay is reserved, but not by our truck
         if (!cargoBayReservedBy(parkingBayID, truckID)) {
             return wrongTruckForBay(parkingBayID, truckID);
@@ -159,10 +205,16 @@ public class AirportService {
         return truckArrived(parkingBayID, truckID);
     }
 
-    public ResponseEntity releaseParkingBay(String id) {
+    public ResponseEntity releaseParkingBay(String id, String truckID) {
         //check bay exists
         if (!bayExists(id, BayType.PARKING_BAY)) {
             return noBayFound(id);
+        }
+        if (!userExists(truckID)) {
+            return userNotFound(truckID);
+        }
+        if (!cargoBayReservedBy(id, truckID)) {
+            return wrongTruckForBay(id, truckID);
         }
         //remove truck id
         parkingBayDB.get(id).setTruckID("");
@@ -174,6 +226,15 @@ public class AirportService {
     //truck arrived parking         //check if truck exists
 
     //------------------------------worker methods------------------------------
+
+    public boolean flightExists(String wing) {
+        return flightDB.containsKey(wing);
+    }
+
+    public ResponseEntity noFlightFound(String wing) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No flight %s found".formatted(wing));
+    }
+
     public boolean bayExists(String id, BayType type) {
         return type == BayType.CARGO_BAY ? cargoBayDB.containsKey(id) : parkingBayDB.containsKey(id);
     }
@@ -183,7 +244,11 @@ public class AirportService {
     }
 
     public boolean isParkingBayAvailable(String id) {
-        return parkingBayDB.get(id).getState().equals(ParkingBayState.AVAILABLE)
+        return parkingBayDB.get(id).getState().equals(ParkingBayState.AVAILABLE);
+    }
+
+    public boolean userExists(String username) {
+        return this.firebaseService.getUser(username) != null;
     }
 
     public boolean cargoBayReservedBy(String id, String truck) {
@@ -196,7 +261,12 @@ public class AirportService {
 
     public ResponseEntity bayNotAvailable(String id) {
         return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED)
-                .body("Selected bay %s is not available to reserve. Please select another bay.".formatted(id));
+                .body("Bay %s is not available to reserve. Please select another bay.".formatted(id));
+    }
+
+    public ResponseEntity userNotFound(String id) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("User %s not found".formatted(id));
     }
 
     public ResponseEntity bayNotReserved(String bay) {
@@ -263,6 +333,7 @@ public class AirportService {
             } else {
                 bay.setState(CargoBayState.AVAILABLE);
             }
+            cargoBayDB.put(bay.getId(), bay);
         }
     }
 
@@ -278,6 +349,7 @@ public class AirportService {
             } else {
                 bay.setState(ParkingBayState.AVAILABLE);
             }
+            parkingBayDB.put(bay.getId(), bay);
         }
     }
 

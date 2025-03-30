@@ -52,10 +52,10 @@ public class UserService implements IUserService  {
             return updatePassword(email,password);
     }
 
-    public void setFirebaseService(FirebaseService firebaseService) { //This is for if we want to mock the firebase service.
-        // Not needed but could be nice to be aware of.
-        this.firebaseService = firebaseService;
-    }
+//    public void setFirebaseService(FirebaseService firebaseService) { //This is for if we want to mock the firebase service.
+//        // Not needed but could be nice to be aware of.
+//        this.firebaseService = firebaseService;
+//    }
 
     public String deleteUser(String username) {
         return this.firebaseService.deleteUser(username);
