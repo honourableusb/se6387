@@ -30,7 +30,7 @@
         <activity android:name=".TerminalSelectionActivity"></activity>
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCnL_bwhXbrIKOvs3IkN8ZGr6PLEgbsqUY" />
+            android:value="Your_Key" />
 
         <activity android:name=".MapsActivity"></activity>
     </application>
