@@ -5,6 +5,7 @@ import com.project.webserver.controller.external.controller.AirportController;
 import com.project.webserver.model.User;
 import com.project.webserver.model.airport.*;
 import com.project.webserver.service.external.AirportService;
+import org.apache.coyote.Response;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -80,6 +81,13 @@ public class AirportServiceTests {
     }
 
     @Test
+    public void testGetSingleFlightNotFound() {
+        String wing = "FDX10000";
+        ResponseEntity resp = controller.getFlight(wing);
+        checkNotOK(resp);
+    }
+
+    @Test
     public void testAirportUpdateFlight() {
         Flight flight = getSingleFlight();
         Flight old = Flight.of(flight);
@@ -152,6 +160,7 @@ public class AirportServiceTests {
 
     @Test
     public void testAirportCargoReserveBayNotExists() {
+        //TODO this isn't actually working?
         getOrCreateUser(user, userController);
         ResponseEntity resp = controller.reserveParkingBay("thisWillNotWork", user.getUsername());
         checkNotOK(resp);
@@ -163,7 +172,7 @@ public class AirportServiceTests {
     public void testAirportCargoArrive() {
         getOrCreateUser(user, userController);
         CargoBay bay = getSingleCargoBay();
-        ResponseEntity resp = controller.reserveParkingBay(bay.getId(), user.getUsername());
+        ResponseEntity resp = controller.reserveCargoBay(bay.getId(), user.getUsername());
         checkOK(resp);
         resp = controller.cargoTruckArrived(bay.getId(), user.getUsername());
         checkOK(resp);
@@ -180,7 +189,8 @@ public class AirportServiceTests {
     @Test
     public void testAirportCargoArriveNotReserved() {
         getOrCreateUser(user, userController);
-        ResponseEntity resp = controller.cargoTruckArrived("1", user.getUsername());
+        CargoBay bay = getSingleCargoBay();
+        ResponseEntity resp = controller.cargoTruckArrived(bay.getId(), user.getUsername());
         checkNotOK(resp);
         String msg = (String) resp.getBody();
         System.out.println(msg);
@@ -245,25 +255,172 @@ public class AirportServiceTests {
     }
 
     @Test
-    public void testGetBayForTruck() {
+    public void testReleaseCargoTruckNotExists() {
+        //TODO
+    }
 
+    @Test
+    public void testGetBayForTruck() {
+    //this doesn't exist yet
     }
 
     //------------------------------PARKING------------------------------
 
     @Test
     public void testAirportParkingDB() {
+        ResponseEntity resp = controller.getAllParkingBays();
+        checkOK(resp);
+        Map<String, ParkingBay> bays = (Map<String, ParkingBay>) resp.getBody();
+        Assertions.assertEquals(bays.size(), PARKING_BAY_COUNT);
+    }
 
+    @Test
+    public void testGetParkingBayNotExists() {
+        //TODO
     }
 
     @Test
     public void testGetAvailableParkingBays() {
-
+        ResponseEntity resp = controller.getAvailableParkingBays();
+        checkOK(resp);
+        Map<String, ParkingBay> bays = (Map<String, ParkingBay>) resp.getBody();
+        System.out.println(bays);
     }
 
     @Test
-    public void testAirportParkingReserved() {
+    public void testGetAvailableParkingBaysNonAvailable() {
+        //TODO
+    }
 
+    @Test
+    public void testAirportParkingReserve() {
+        getOrCreateUser(user, userController);
+        ParkingBay bay = getSingleParkingBay();
+        ResponseEntity resp = controller.reserveParkingBay(bay.getId(), user.getUsername());
+        checkOK(resp);
+        bay = (ParkingBay) controller.getParkingBay(bay.getId()).getBody();
+        //assert that spot is reserved
+        Assertions.assertEquals(ParkingBayState.RESERVED, bay.getState());
+    }
+
+    @Test
+    public void testAirportParkingReserveUnavailable() {
+        getOrCreateUser(user, userController);
+        ParkingBay bay = getUnavailableParkingBay();
+        ResponseEntity resp = controller.reserveParkingBay(bay.getId(), user.getUsername());
+        checkNotOK(resp);
+        String msg = (String) resp.getBody();
+        System.out.println(msg);
+        Assertions.assertTrue(msg.contains("is not available to reserve."));
+    }
+
+    @Test
+    public void testAirportParkingReserveUserNotExists() {
+        ParkingBay bay = getSingleParkingBay();
+        ResponseEntity resp = controller.reserveParkingBay(bay.getId(), thirdUser.getUsername());
+        checkNotOK(resp);
+        String msg = (String) resp.getBody();
+        Assertions.assertTrue(msg.contains("not found"));
+    }
+
+    @Test
+    public void testAirportParkingReserveBayNotExists() {
+        getOrCreateUser(user, userController);
+        ResponseEntity resp = controller.reserveParkingBay("thisWillNotWork", user.getUsername());
+        checkNotOK(resp);
+        String msg = (String) resp.getBody();
+        Assertions.assertTrue(msg.contains("No bay with ID"));
+    }
+
+    @Test
+    public void testAirportParkingArrive() {
+        getOrCreateUser(user, userController);
+        ParkingBay bay = getSingleParkingBay();
+        ResponseEntity resp = controller.reserveParkingBay(bay.getId(), user.getUsername());
+        checkOK(resp);
+        resp = controller.parkingTruckArrived(bay.getId(), user.getUsername());
+        checkOK(resp);
+    }
+
+    @Test
+    public void testAirportParkingArriveBayNotExists() {
+        ResponseEntity resp = controller.parkingTruckArrived("blag", "blag");
+        checkNotOK(resp);
+        String msg = (String) resp.getBody();
+        Assertions.assertTrue(msg.contains("No bay with ID"));
+    }
+
+    @Test
+    public void testAirportParkingArriveNotReserved() {
+        getOrCreateUser(user, userController);
+        ParkingBay bay = getSingleParkingBay();
+        ResponseEntity resp = controller.parkingTruckArrived(bay.getId(), user.getUsername());
+        checkNotOK(resp);
+        String msg = (String) resp.getBody();
+        System.out.println(msg);
+        Assertions.assertTrue(msg.contains("is not reserved by any truck"));
+    }
+
+    @Test
+    public void testAirportParkingArriveWrongTruck() {
+        getOrCreateUser(user, userController);
+        getOrCreateUser(secondUser, userController);
+        ParkingBay bay = getSingleParkingBay();
+        ResponseEntity resp = controller.reserveParkingBay(bay.getId(), user.getUsername());
+        checkOK(resp);
+        resp = controller.parkingTruckArrived(bay.getId(), secondUser.getUsername());
+        checkNotOK(resp);
+        String msg = (String) resp.getBody();
+        Assertions.assertTrue(msg.contains("is not reserved by truck"));
+    }
+
+    @Test
+    public void testAirportParkingArriveTruckNotExists() {
+        getOrCreateUser(user, userController);
+        ParkingBay bay = getSingleParkingBay();
+        ResponseEntity resp = controller.reserveParkingBay(bay.getId(), user.getUsername());
+        checkOK(resp);
+        resp = controller.parkingTruckArrived(bay.getId(), thirdUser.getUsername());
+        checkNotOK(resp);
+        String msg = (String) resp.getBody();
+        Assertions.assertTrue(msg.contains("User %s not found".formatted(thirdUser.getUsername())));
+    }
+
+    @Test
+    public void testReleaseParking(){
+        getOrCreateUser(user, userController);
+        ParkingBay bay = getSingleParkingBay();
+        ResponseEntity resp = controller.reserveParkingBay(bay.getId(), user.getUsername());
+        checkOK(resp);
+        resp = controller.releaseParkingBay(bay.getId(), user.getUsername());
+        checkOK(resp);
+        String msg = (String) resp.getBody();
+        Assertions.assertTrue(msg.equals("Parking bay %s released".formatted(bay.getId())));
+    }
+
+    @Test
+    public void testReleaseParkingBayNotExists(){
+        getOrCreateUser(user, userController);
+        ResponseEntity resp = controller.releaseParkingBay("thisWillFail", user.getUsername());
+        checkNotOK(resp);
+        //TODO message eval
+    }
+
+    @Test
+    public void testReleaseParkingIncorrectTruck(){
+        getOrCreateUser(user, userController);
+        getOrCreateUser(secondUser, userController);
+        ParkingBay bay = getSingleParkingBay();
+        ResponseEntity resp = controller.reserveParkingBay(bay.getId(), user.getUsername());
+        checkOK(resp);
+        resp = controller.releaseParkingBay(bay.getId(), secondUser.getUsername());
+        checkNotOK(resp);
+        //TODO string eval
+    }
+
+    @Test
+    public void testReleaseParkingUserNotExists() {
+        //TODO
     }
     
     //------------------------------WORKERS------------------------------

@@ -69,6 +69,11 @@ public class AirportController {
         return service.getParkingBays();
     }
 
+    @GetMapping("/parking/{id}")
+    public ResponseEntity getParkingBay(@PathParam("id") String id) {
+        return service.getParkingBay(id);
+    }
+
     @GetMapping("/parking/available")
     public ResponseEntity getAvailableParkingBays() {
         return service.getAvailableParkingBays();
