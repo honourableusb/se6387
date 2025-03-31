@@ -28,7 +28,7 @@ public class GoogleMapsClient implements IClient {
         }
         HttpRequest request = HttpRequest.newBuilder(URI.create(root + url)).POST(HttpRequest.BodyPublishers.ofString(inputString))
                 .header("Content-Type", "application/json")
-                .header("X-Goog-Api-Key", "AIzaSyAQDKs1pkPERdk4RWdG7iGmgQtrIWs1Ffs")
+                .header("X-Goog-Api-Key", "your-key")
                 .header("X-Goog_FieldMask", "routes.duration,routes.distanceMeters,routes.ployline.encodedPolyLine")
                 .build();
         try {
