@@ -1,0 +1,26 @@
+[
+  {
+    "signalId": "S1",
+    "type": "GREEN",
+    "duration": 20,
+    "recommendedSpeed": 35.0,
+    "lat": 32.9081058,
+    "lng": -97.0409623
+  },
+  {
+    "signalId": "S2",
+    "type": "RED",
+    "duration": 30,
+    "recommendedSpeed": 0.0,
+    "lat": 32.9042395,
+    "lng": -97.0362287
+  },
+  {
+    "signalId": "S3",
+    "type": "YELLOW",
+    "duration": 10,
+    "recommendedSpeed": 25.0,
+    "lat": 32.9000000,
+    "lng": -97.0350000
+  }
+]

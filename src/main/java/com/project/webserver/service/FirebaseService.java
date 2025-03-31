@@ -28,7 +28,7 @@ public class FirebaseService {
     public FirebaseService() {
         try {
             System.out.println("Reached Firestore Constructor");
-            String firebaseCredentialsPath = "/Users/aditilve/Desktop/Application/freightflow-7c94c-firebase-adminsdk-fbsvc-d9199f8420.json";
+            String firebaseCredentialsPath = "C:\\Users\\svnka\\Downloads\\freightflow-7c94c-firebase-adminsdk-fbsvc-d9199f8420 1.json";
             FileInputStream serviceAccount = new FileInputStream(firebaseCredentialsPath);
 
             FirebaseOptions options = new FirebaseOptions.Builder()
