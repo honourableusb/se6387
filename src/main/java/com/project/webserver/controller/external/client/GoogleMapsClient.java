@@ -1,8 +1,9 @@
-package com.project.webserver.controller.external;
+package com.project.webserver.controller.external.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
+import com.project.webserver.controller.external.IClient;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -11,9 +12,9 @@ import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GoogleMapsClient implements IClient{
+public class GoogleMapsClient implements IClient {
     static HttpClient client = HttpClient.newHttpClient();
-    String root = "https://routes.googleapis.com/directions/v2:computeRoutes";
+    String root = "https://routes.googleapis.com";
     public Gson doPost(String url, Map input) {
         ObjectMapper mapper = new ObjectMapper();
         String inputString = "";
@@ -25,9 +26,9 @@ public class GoogleMapsClient implements IClient{
             e.printStackTrace();
             throw new RuntimeException("Error deserializing input object to string");
         }
-        HttpRequest request = HttpRequest.newBuilder(URI.create(url)).POST(HttpRequest.BodyPublishers.ofString(inputString))
+        HttpRequest request = HttpRequest.newBuilder(URI.create(root + url)).POST(HttpRequest.BodyPublishers.ofString(inputString))
                 .header("Content-Type", "application/json")
-                .header("X-Goog-Api-Key", "key-here")
+                .header("X-Goog-Api-Key", "AIzaSyAQDKs1pkPERdk4RWdG7iGmgQtrIWs1Ffs")
                 .header("X-Goog_FieldMask", "routes.duration,routes.distanceMeters,routes.ployline.encodedPolyLine")
                 .build();
         try {
