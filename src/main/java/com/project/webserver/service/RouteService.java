@@ -26,7 +26,7 @@ public class RouteService {
 	public String createRoute(RouteRequest routeRequest) {
 		String origin = routeRequest.getOriginLatitude() + "," + routeRequest.getOriginLongitude();
 		String destination = routeRequest.getDestinationLatitude() + "," + routeRequest.getDestinationLongitude();
-		String apiKey = "";
+		String apiKey = "AIzaSyBEFty-KFeg4F5G50sbDGrOoaJXUWBbqfA";
 
 		String url = UriComponentsBuilder.fromHttpUrl(GOOGLE_MAPS_API_URL)
 				.queryParam("origin", origin)
