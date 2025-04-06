@@ -33,7 +33,7 @@ public class AirportService {
     }
 
     public ResponseEntity<Object> getFlight(String tail) {
-        if (!flightExists(tail)) {
+        if (flightNotExists(tail)) {
             return noFlightFound(tail);
         }
         return ResponseEntity.ok(flightDB.get(tail));
@@ -41,7 +41,7 @@ public class AirportService {
 
     public ResponseEntity<Object> updateFlight(Flight flight) {
         //check flight exists
-        if (!flightExists(flight.getTailNumber())) {
+        if (flightNotExists(flight.getTailNumber())) {
             return noFlightFound(flight.getTailNumber());
         }
         flightDB.put(flight.getTailNumber(), flight);
@@ -152,7 +152,7 @@ public class AirportService {
     }
 
     public ResponseEntity<Object> getAvailableParkingBays() {
-        Map available = parkingBayDB.entrySet().stream().filter(a-> a.getValue().getState().equals(ParkingBayState.AVAILABLE))
+        Map<String, ParkingBay> available = parkingBayDB.entrySet().stream().filter(a-> a.getValue().getState().equals(ParkingBayState.AVAILABLE))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         if (available.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No parking bays available");
@@ -227,8 +227,8 @@ public class AirportService {
 
     //------------------------------worker methods------------------------------
 
-    public boolean flightExists(String wing) {
-        return flightDB.containsKey(wing);
+    public boolean flightNotExists(String wing) {
+        return !flightDB.containsKey(wing);
     }
 
     public ResponseEntity<Object> noFlightFound(String wing) {

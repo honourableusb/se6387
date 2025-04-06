@@ -29,9 +29,9 @@ public class FirebaseService {
     //TODO logger
     @Resource
     public Environment env;
-    private Firestore firestore;// Inject the path from application.properties
+    private final Firestore firestore;// Inject the path from application.properties
     @Value("${firebase.credentials.path}")
-    private String path = "/Users/matthewhaskell/Documents/freightflow-7c94c-firebase-adminsdk-fbsvc-d9199f8420.json";
+    private final String path = "/Users/matthewhaskell/Documents/freightflow-7c94c-firebase-adminsdk-fbsvc-d9199f8420.json";
 
     public String getPath() {
         return path;
@@ -92,12 +92,7 @@ public class FirebaseService {
         DocumentReference ref = db.collection("users").document(user.getUsername());
         ApiFuture<DocumentSnapshot> future = ref.get();
         DocumentSnapshot doc = future.get();
-        if(doc.exists()) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return doc.exists();
     }
 
     //TODO break out to UserService

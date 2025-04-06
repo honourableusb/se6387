@@ -402,7 +402,7 @@ public class AirportServiceTests {
         resp = controller.releaseParkingBay(bay.getId(), user.getUsername());
         checkOK(resp);
         String msg = (String) resp.getBody();
-        Assertions.assertTrue(msg.equals("Parking bay %s released".formatted(bay.getId())));
+        Assertions.assertEquals(msg, "Parking bay %s released".formatted(bay.getId()));
     }
 
     @Test

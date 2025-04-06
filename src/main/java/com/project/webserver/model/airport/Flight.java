@@ -9,7 +9,7 @@ public class Flight {
     //private int trucksNeeded //for if a flight needs more than one truck?
     //private CargoClassification highestClassification
 
-    public Flight() {};
+    public Flight() {}
 
     public String getTailNumber() {
         return this.tailNumber;

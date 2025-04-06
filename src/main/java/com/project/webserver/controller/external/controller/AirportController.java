@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/airport")
 public class AirportController {
-    private AirportService service = new AirportService();
+    private final AirportService service = new AirportService();
 
     //------------------------------Flights------------------------------
 
