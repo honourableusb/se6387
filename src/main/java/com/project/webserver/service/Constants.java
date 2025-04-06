@@ -8,5 +8,8 @@ public class Constants {
 
 
     //------------------------------DALI------------------------------
-    public final static int DALI_AGENT_COUNT = 10;
+    public final static int DALI_AGENT_COUNT = 13;
+    public final static int DALI_REFRESH_RATE = 10; //frequency of how often dali should be polling
+    public final static int DALI_DISTANCE_AWAY = 100; //distance away from agent before we send the next one, in meters
+    public final static String DALI_COORDINATE_FILE = "src/main/resources/DALI_coordinates.json";
 }

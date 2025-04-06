@@ -39,7 +39,7 @@ public class FirebaseService {
 
     public FirebaseService() {
         try {
-            System.out.println("Reached Firestore Constructor");
+//            System.out.println("Reached Firestore Constructor");
             FileInputStream serviceAccount = new FileInputStream(getPath());
 
             FirebaseOptions options = new FirebaseOptions.Builder()
@@ -58,9 +58,10 @@ public class FirebaseService {
     }
 
     // Add user to Firebase
+    //TODO this is hard to interpret a success message if there's another service invoking. break into responseentity.
     public String addUserDB(User user) {
         try {
-            System.out.println("Reached Firestore addUserDB");
+//            System.out.println("Reached Firestore addUserDB");
             Firestore db = FirestoreClient.getFirestore();
             // Use username as document ID
             DocumentReference docRef = db.collection("users").document(user.getUsername());
@@ -86,7 +87,7 @@ public class FirebaseService {
     }
 
     private boolean userExists(User user) throws ExecutionException, InterruptedException {
-        System.out.println("Get user info");
+//        System.out.println("Get user info");
         Firestore db = FirestoreClient.getFirestore();
         DocumentReference ref = db.collection("users").document(user.getUsername());
         ApiFuture<DocumentSnapshot> future = ref.get();
@@ -101,7 +102,7 @@ public class FirebaseService {
 
     //TODO break out to UserService
     //TODO more elaboration than boolean, return an enum???
-    public ResponseEntity authenticateUserDB(String username, String password) {
+    public ResponseEntity<Object>authenticateUserDB(String username, String password) {
         try {
             Firestore db = FirestoreClient.getFirestore();
             DocumentReference docRef = db.collection("users").document(username);

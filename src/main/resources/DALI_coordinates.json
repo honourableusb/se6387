@@ -1,0 +1,144 @@
+{
+  "agents": {
+    "DALI#0": {
+      "id": "DALI#0",
+      "coordinate": {
+        "latitude": 32.99766,
+        "longitude": 96.77261
+      },
+      "neighbors": {
+        "WEST": "DALI#1"
+      }
+    },
+    "DALI#1": {
+      "id": "DALI#1",
+      "coordinate": {
+        "latitude": 32.99770,
+        "longitude": 96.77886
+      },
+      "neighbors": {
+        "EAST": "DALI#0"
+      }
+    },
+    "DALI#2": {
+      "id": "DALI#2",
+      "coordinate": {
+        "latitude": 32.99826,
+        "longitude": 96.79768
+      },
+      "neighbors": {
+        "EAST": "DALI#1",
+        "NORTH": "DALI#3",
+        "WEST": "DALI#7"
+      }
+    },
+    "DALI#3": {
+      "id": "DALI#3",
+      "coordinate": {
+        "latitude": 33.00261,
+        "longitude": 96.79599
+      },
+      "neighbors": {
+        "SOUTH": "DALI#2",
+        "NORTH": "DALI#4"
+      }
+    },
+    "DALI#4": {
+      "id": "DALI#4",
+      "coordinate": {
+        "latitude": 33.00928,
+        "longitude": 96.79559
+      },
+      "neighbors": {
+        "SOUTH": "DALI#3",
+        "NORTH": "DALI#5"
+      }
+    },
+    "DALI#5": {
+      "id": "DALI#5",
+      "coordinate": {
+        "latitude": 33.01170,
+        "longitude": 96.79558
+      },
+      "neighbors": {
+        "SOUTH": "DALI#4",
+        "NORTH": "DALI#6"
+      }
+    },
+    "DALI#6": {
+      "id": "DALI#6",
+      "coordinate": {
+        "latitude": 33.01259,
+        "longitude": 96.79543
+      },
+      "neighbors": {
+        "SOUTH": "DALI#5"
+      }
+    },
+    "DALI#7": {
+      "id": "DALI#7",
+      "coordinate": {
+        "latitude": 32.99811,
+        "longitude": 96.80552
+      },
+      "neighbors": {
+        "EAST": "DALI#2",
+        "WEST": "DALI#8"
+      }
+    },
+    "DALI#8": {
+      "id": "DALI#8",
+      "coordinate": {
+        "latitude": 32.99910,
+        "longitude": 96.81794
+      },
+      "neighbors": {
+        "EAST": "DALI#7",
+        "WEST": "DALI#9"
+      }
+    },
+    "DALI#9": {
+      "id": "DALI#9",
+      "coordinate": {
+        "latitude": 32.99910,
+        "longitude": 96.82251
+      },
+      "neighbors": {
+        "EAST": "DALI#8",
+        "WEST": "DALI#10"
+      }
+    },
+    "DALI#10": {
+      "id": "DALI#10",
+      "coordinate": {
+        "latitude": 32.99897,
+        "longitude": 96.82471
+      },
+      "neighbors": {
+        "EAST": "DALI#9",
+        "WEST": "DALI#11"
+      }
+    },
+    "DALI#11": {
+      "id": "DALI#11",
+      "coordinate": {
+        "latitude": 32.99765,
+        "longitude": 96.82907
+      },
+      "neighbors": {
+        "EAST": "DALI#10",
+        "WEST": "DALI#12"
+      }
+    },
+    "DALI#12": {
+      "id": "DALI#12",
+      "coordinate": {
+        "latitude": 32.99765,
+        "longitude": 96.82956
+      },
+      "neighbors": {
+        "EAST": "DALI#11"
+      }
+    }
+  }
+}

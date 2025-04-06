@@ -1,7 +1,7 @@
 package com.project.webserver.model.dali;
 
 
-public class Coordinate {
+public class Coordinate implements Comparable<Coordinate>{
     private float latitude;
     private float longitude;
 
@@ -21,5 +21,10 @@ public class Coordinate {
 
     public float getLongitude() {
         return longitude;
+    }
+
+    @Override
+    public int compareTo(Coordinate o) {
+        return this.latitude == o.getLatitude() && this.longitude == o.getLongitude() ? 0 : 1;
     }
 }

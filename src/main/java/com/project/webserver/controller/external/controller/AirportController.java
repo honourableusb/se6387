@@ -1,12 +1,8 @@
 package com.project.webserver.controller.external.controller;
 
 import com.project.webserver.service.external.AirportService;
-import jakarta.websocket.server.PathParam;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 
@@ -17,83 +13,83 @@ public class AirportController {
     //------------------------------Flights------------------------------
 
     @GetMapping("/flights")
-    public ResponseEntity getFlights() {
+    public ResponseEntity<Object> getFlights() {
         return service.getFlights();
     }
 
     @GetMapping("/flights/{id}")
-    public ResponseEntity getFlight(@PathParam("id") String id) {
+    public ResponseEntity<Object> getFlight(@PathVariable("id") String id) {
         return service.getFlight(id);
     }
 
     //------------------------------Cargo Bays------------------------------
 
     @GetMapping("/cargo")
-    public ResponseEntity getAllCargoBays() {
+    public ResponseEntity<Object> getAllCargoBays() {
         return service.getAllCargoBays();
     }
     
     @GetMapping("/cargo/{id}")
-    public ResponseEntity getCargoBay(@PathParam("id") String id) {
+    public ResponseEntity<Object> getCargoBay(@PathVariable("id") String id) {
         return service.getCargoBay(id);
     }
 
     @GetMapping("/cargo/available")
-    public ResponseEntity getAvailableCargoBays() {
+    public ResponseEntity<Object> getAvailableCargoBays() {
         return service.getAvailableCargoBays();
     }
 
     @PostMapping("/cargo/{id}/{truckID}/reserve")
-    public ResponseEntity<String> reserveCargoBay(@PathParam("id") String id,
-    @PathParam("truckID") String truckID) {
+    public ResponseEntity<Object> reserveCargoBay(@PathVariable("id") String id,
+    @PathVariable("truckID") String truckID) {
         return service.reserveCargoBay(id, truckID);
     }
 
     @PostMapping("/cargo/{id}/{truckID}/arrived")
-    public ResponseEntity cargoTruckArrived(@PathParam("id") String cargoID,
-                                            @PathParam("truckID") String truckID)
+    public ResponseEntity<Object> cargoTruckArrived(@PathVariable("id") String cargoID,
+                                            @PathVariable("truckID") String truckID)
     {
         return service.truckArrivedCargo(cargoID, truckID);
     }
 
     @PostMapping("/cargo/{id}/{truckID}/release")
-    public ResponseEntity releaseCargoBay(@PathParam("id") String id,
-                                          @PathParam("truckID") String truckID) {
+    public ResponseEntity<Object> releaseCargoBay(@PathVariable("id") String id,
+                                          @PathVariable("truckID") String truckID) {
         return service.releaseCargoBay(id, truckID);
     }
 
     //------------------------------Parking Bays------------------------------
 
     @GetMapping("/parking")
-    public ResponseEntity getAllParkingBays() {
+    public ResponseEntity<Object> getAllParkingBays() {
         return service.getParkingBays();
     }
 
     @GetMapping("/parking/{id}")
-    public ResponseEntity getParkingBay(@PathParam("id") String id) {
+    public ResponseEntity<Object> getParkingBay(@PathVariable("id") String id) {
         return service.getParkingBay(id);
     }
 
     @GetMapping("/parking/available")
-    public ResponseEntity getAvailableParkingBays() {
+    public ResponseEntity<Object> getAvailableParkingBays() {
         return service.getAvailableParkingBays();
     }
 
     @PostMapping("/parking/{id}/{truckID}/reserve")
-    public ResponseEntity reserveParkingBay(@PathParam("id") String id,
-                                              @PathParam("truckID") String truckID) {
+    public ResponseEntity<Object> reserveParkingBay(@PathVariable("id") String id,
+                                              @PathVariable("truckID") String truckID) {
         return service.reserveParkingBay(id, truckID);
     }
 
     @PostMapping("/parking/{id}/{truckID}/arrived")
-    public ResponseEntity parkingTruckArrived(@PathParam("id") String id,
-                                              @PathParam("truckID") String truckID) {
+    public ResponseEntity<Object> parkingTruckArrived(@PathVariable("id") String id,
+                                              @PathVariable("truckID") String truckID) {
         return service.truckArrivedParking(id, truckID);
     }
 
     @PostMapping("/parking/{id}/{truckID}/release")
-    public ResponseEntity releaseParkingBay(@PathParam("id") String id,
-                                            @PathParam("truckID") String truckID) {
+    public ResponseEntity<Object> releaseParkingBay(@PathVariable("id") String id,
+                                            @PathVariable("truckID") String truckID) {
         return service.releaseParkingBay(id, truckID);
     }
 

@@ -28,18 +28,18 @@ public class AirportService {
 
     //------------------------------flights------------------------------
 
-    public ResponseEntity<Map<String, Flight>> getFlights() {
+    public ResponseEntity<Object> getFlights() {
         return ResponseEntity.ok(flightDB); //returning all the items in the map is computationally expensive for us but given the amount of flights that we have to deal with right now will be fine
     }
 
-    public ResponseEntity getFlight(String tail) {
+    public ResponseEntity<Object> getFlight(String tail) {
         if (!flightExists(tail)) {
             return noFlightFound(tail);
         }
         return ResponseEntity.ok(flightDB.get(tail));
     }
 
-    public ResponseEntity updateFlight(Flight flight) {
+    public ResponseEntity<Object> updateFlight(Flight flight) {
         //check flight exists
         if (!flightExists(flight.getTailNumber())) {
             return noFlightFound(flight.getTailNumber());
@@ -50,11 +50,11 @@ public class AirportService {
 
     //------------------------------cargo bays------------------------------
 
-    public ResponseEntity getAllCargoBays() {
+    public ResponseEntity<Object> getAllCargoBays() {
         return ResponseEntity.ok(cargoBayDB);
     }
 
-    public ResponseEntity getCargoBay(String id) {
+    public ResponseEntity<Object> getCargoBay(String id) {
         if (!bayExists(id, BayType.CARGO_BAY)) {
             //logger here
             return noBayFound(id);
@@ -62,7 +62,7 @@ public class AirportService {
         return ResponseEntity.ok(cargoBayDB.get(id));
     }
 
-    public ResponseEntity getAvailableCargoBays() {
+    public ResponseEntity<Object> getAvailableCargoBays() {
         Map<String, CargoBay> available = cargoBayDB.entrySet().stream()
                 .filter(bay-> bay.getValue().getState().equals(CargoBayState.AVAILABLE))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -74,7 +74,7 @@ public class AirportService {
         }
     }
 
-    public ResponseEntity reserveCargoBay(String bayID, String truckID) {
+    public ResponseEntity<Object> reserveCargoBay(String bayID, String truckID) {
         //check if bay exists
         if (!bayExists(bayID, BayType.CARGO_BAY)) {
             //logger here
@@ -96,7 +96,7 @@ public class AirportService {
         return ResponseEntity.ok("Successfully reserved cargo bay %s".formatted(bayID));
     }
 
-    public ResponseEntity truckArrivedCargo(String cargoBayID, String truckID) {
+    public ResponseEntity<Object> truckArrivedCargo(String cargoBayID, String truckID) {
         //check if bay exists
         if (!bayExists(cargoBayID, BayType.CARGO_BAY)) {
             //logger here
@@ -119,7 +119,7 @@ public class AirportService {
         return truckArrived(cargoBayID, truckID);
     }
 
-    public ResponseEntity releaseCargoBay(String id, String truckID) {
+    public ResponseEntity<Object> releaseCargoBay(String id, String truckID) {
         //check bay exists
         if (!bayExists(id, BayType.CARGO_BAY)) {
             return noBayFound(id);
@@ -139,11 +139,11 @@ public class AirportService {
 
     //------------------------------parking bays------------------------------
 
-    public ResponseEntity getParkingBays() {
+    public ResponseEntity<Object> getParkingBays() {
         return ResponseEntity.ok(parkingBayDB);
     }
 
-    public ResponseEntity getParkingBay(String id) {
+    public ResponseEntity<Object> getParkingBay(String id) {
         if (!bayExists(id, BayType.PARKING_BAY)) {
             //logger here
             return noBayFound(id);
@@ -151,7 +151,7 @@ public class AirportService {
         return ResponseEntity.ok(parkingBayDB.get(id));
     }
 
-    public ResponseEntity getAvailableParkingBays() {
+    public ResponseEntity<Object> getAvailableParkingBays() {
         Map available = parkingBayDB.entrySet().stream().filter(a-> a.getValue().getState().equals(ParkingBayState.AVAILABLE))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         if (available.isEmpty()) {
@@ -160,7 +160,7 @@ public class AirportService {
         return ResponseEntity.ok(available);
     }
 
-    public ResponseEntity reserveParkingBay(String bayID, String truckID) {
+    public ResponseEntity<Object> reserveParkingBay(String bayID, String truckID) {
         //check if bay exists
         if (!bayExists(bayID, BayType.PARKING_BAY)) {
             //logger here
@@ -182,7 +182,7 @@ public class AirportService {
         return ResponseEntity.ok("Successfully reserved parking bay %s".formatted(bayID));
     }
 
-    public ResponseEntity truckArrivedParking(String parkingBayID, String truckID) {
+    public ResponseEntity<Object> truckArrivedParking(String parkingBayID, String truckID) {
         //check if bay exists
         if (!bayExists(parkingBayID, BayType.PARKING_BAY)) {
             //logger here
@@ -205,7 +205,7 @@ public class AirportService {
         return truckArrived(parkingBayID, truckID);
     }
 
-    public ResponseEntity releaseParkingBay(String id, String truckID) {
+    public ResponseEntity<Object> releaseParkingBay(String id, String truckID) {
         //check bay exists
         if (!bayExists(id, BayType.PARKING_BAY)) {
             return noBayFound(id);
@@ -231,7 +231,7 @@ public class AirportService {
         return flightDB.containsKey(wing);
     }
 
-    public ResponseEntity noFlightFound(String wing) {
+    public ResponseEntity<Object> noFlightFound(String wing) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No flight %s found".formatted(wing));
     }
 
@@ -259,31 +259,31 @@ public class AirportService {
         return parkingBayDB.get(id).getTruckID().equals(truck);
     }
 
-    public ResponseEntity noBayFound(String id) {
+    public ResponseEntity<Object> noBayFound(String id) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No bay with ID %s found.".formatted(id));
     }
 
-    public ResponseEntity bayNotAvailable(String id) {
+    public ResponseEntity<Object> bayNotAvailable(String id) {
         return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED)
                 .body("Bay %s is not available to reserve. Please select another bay.".formatted(id));
     }
 
-    public ResponseEntity userNotFound(String id) {
+    public ResponseEntity<Object> userNotFound(String id) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body("User %s not found".formatted(id));
     }
 
-    public ResponseEntity bayNotReserved(String bay) {
+    public ResponseEntity<Object> bayNotReserved(String bay) {
         return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED)
                 .body("Bay %s is not reserved by any truck".formatted(bay));
     }
 
-    public ResponseEntity wrongTruckForBay(String bay, String truck ) {
+    public ResponseEntity<Object> wrongTruckForBay(String bay, String truck ) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body("Bay %s is not reserved by truck %s.".formatted(bay, truck));
     }
 
-    public ResponseEntity truckArrived(String bay, String truck) {
+    public ResponseEntity<Object> truckArrived(String bay, String truck) {
         return ResponseEntity.ok("Marked truck %s as arrived to bay %s".formatted(truck, bay));
     }
 

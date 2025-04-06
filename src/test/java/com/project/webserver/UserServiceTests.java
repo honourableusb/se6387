@@ -28,7 +28,7 @@ class UserServiceTests {
 
 	@BeforeAll
 	public static void init() {
-		System.out.println("startup reached");
+//		System.out.println("startup reached");
 		goodUser = generateUserProfile("goodUser", "goodPass", "123",
 				"AAA1234", "testEmail@email.com");
 		badUser = generateUserProfile("badUser", "badPass", "456",
@@ -41,14 +41,14 @@ class UserServiceTests {
 
 	@Test
 	public void healthCheck() {
-		ResponseEntity resp = controller.healthCheck();
+		ResponseEntity<Object> resp = controller.healthCheck();
 		checkOK(resp);
 	}
 
 	@Test
 	public void testAddUser() {
 		//test1: add new user
-		ResponseEntity resp = createUser(goodUser, controller);
+		ResponseEntity<Object> resp = createUser(goodUser, controller);
 		checkOK(resp);
 		checkEntity(resp, userSuccess());
 	}
@@ -56,28 +56,28 @@ class UserServiceTests {
 	@Test
 	public void testAddUserExisting() {
 		//test2: add existing user
-		ResponseEntity resp = createUser(goodUser, controller);
+		ResponseEntity<Object> resp = createUser(goodUser, controller);
 		checkOK(resp);
 		checkEntity(resp, userExists());
 	}
 
 	@Test
 	public void testLoginSuccess() {
-		ResponseEntity resp = authenticateUser(goodUser);
+		ResponseEntity<Object> resp = authenticateUser(goodUser);
 		checkOK(resp);
 		checkEntity(resp, loginSuccess());
 	}
 
 	@Test
 	public void testLoginFail() {
-		ResponseEntity resp = authenticateUser(goodUser, badUser.getPassword());
+		ResponseEntity<Object> resp = authenticateUser(goodUser, badUser.getPassword());
 		checkNotOK(resp);
 		checkEntity(resp, loginFailure());
 	}
 
 	@Test
 	public void testLoginNoUserExists() {
-		ResponseEntity resp = authenticateUser(badUser);
+		ResponseEntity<Object> resp = authenticateUser(badUser);
 		checkNotOK(resp);
 		checkEntity(resp, loginFailure());
 	}
@@ -85,7 +85,7 @@ class UserServiceTests {
 	@Test
 	public void testPasswordChange(){
 		//check if user exists
-		ResponseEntity resp = getOrCreateUser(goodUser, controller);
+		ResponseEntity<Object> resp = getOrCreateUser(goodUser, controller);
 		checkOK(resp);
 		//get old password
 		String oldPassword = goodUser.getPassword();
@@ -103,7 +103,7 @@ class UserServiceTests {
 
 	@Test
 	public void testUserNotExists(){
-		ResponseEntity resp = controller.getUser(badUser.getUsername());
+		ResponseEntity<Object> resp = controller.getUser(badUser.getUsername());
 		checkNotOK(resp);
 		Assertions.assertEquals(404, resp.getStatusCode().value());
 	}
@@ -114,15 +114,15 @@ class UserServiceTests {
 		controller.deleteUser(badUser.getUsername());
 	}
 
-	private ResponseEntity authenticateUser(User user) {
+	private ResponseEntity<Object> authenticateUser(User user) {
 		return controller.login(user.getUsername(), user.getPassword());
 	}
 
-	private ResponseEntity authenticateUser(User user, String pwd) {
+	private ResponseEntity<Object> authenticateUser(User user, String pwd) {
 		return controller.login(user.getUsername(), pwd);
 	}
 
-	private ResponseEntity changePassword(String userEmail, String newPwd) {
+	private ResponseEntity<Object> changePassword(String userEmail, String newPwd) {
 		return controller.forgetPassword(userEmail, newPwd);
 	}
 
