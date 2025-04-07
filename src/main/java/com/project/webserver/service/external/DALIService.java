@@ -58,7 +58,6 @@ public class DALIService {
             logger.error("Agent %s does not exist".formatted(id));
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Agent %s does not exist".formatted(id));
         }
-        //TODO validate user exists do we want this?
         if (!userExists(username)) {
             logger.error("User does not exist");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist");
@@ -77,6 +76,9 @@ public class DALIService {
             }
             else {
                 logger.info("Vehicle has passed DALI agent. Next agent: %s".formatted(next));
+                //update next agent
+                DALIAgent nextAgent = agents.get(next);
+                nextAgent.addVehicle(username, location);
                 resp = new UpdateControllerResponse.UpdateControllerResponseBuilder()
                         .message("Vehicle has passed. Next Agent provided.")
                         .nextId(next).status(UpdateStatus.PASSED).build();

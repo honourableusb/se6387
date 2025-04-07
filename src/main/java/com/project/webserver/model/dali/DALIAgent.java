@@ -13,10 +13,9 @@ public class DALIAgent extends Thread {
     private String id;
     private LightColor color;
     private Coordinate location;
-    private Map<String , UserLocation> vehicles; //TODO is this going to stay a String?
+    private Map<String , UserLocation> vehicles;
     private double timeRemaining;
     private Map<LightColor, Integer> timings; //in a real DALI agent these would not exist they would be dynamic
-    //TODO map<direction, id> neighbors
     private Map<Heading, String> neighbors;
 
     private final int frequency = DALI_REFRESH_RATE;
@@ -127,8 +126,6 @@ public class DALIAgent extends Thread {
         return 2 * r * Math.asin(Math.sqrt(a));
     }
 
-//TODO somewhere in all this i need to figure out how to mark vehicles as no longer mattering to this agent.
-    //TODO is that going to be in this code or in the frontend or the service? who knows.
     @Override
     public void run() {
         try {
