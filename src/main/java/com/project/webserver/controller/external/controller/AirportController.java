@@ -2,17 +2,16 @@ package com.project.webserver.controller.external.controller;
 
 import com.project.webserver.service.external.AirportService;
 import jakarta.websocket.server.PathParam;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 
-@RequestMapping("/airport")
+//@RequestMapping("/airport")
 public class AirportController {
-    private AirportService service = new AirportService();
+    @Autowired
+    private AirportService service;
 
     //------------------------------Flights------------------------------
 
@@ -21,9 +20,9 @@ public class AirportController {
         return service.getFlights();
     }
 
-    @GetMapping("/flights/{id}")
-    public ResponseEntity getFlight(@PathParam("id") String id) {
-        return service.getFlight(id);
+    @GetMapping("flights/{flightNumber}")
+    public ResponseEntity getFlight(@PathVariable String flightNumber) {
+        return service.getFlight(flightNumber);
     }
 
     //------------------------------Cargo Bays------------------------------
@@ -32,7 +31,7 @@ public class AirportController {
     public ResponseEntity getAllCargoBays() {
         return service.getAllCargoBays();
     }
-    
+
     @GetMapping("/cargo/{id}")
     public ResponseEntity getCargoBay(@PathParam("id") String id) {
         return service.getCargoBay(id);

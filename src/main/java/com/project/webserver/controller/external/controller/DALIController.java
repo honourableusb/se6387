@@ -13,7 +13,7 @@ public class DALIController {
     private DALIService service;
 
     public DALIController() {
-        service = new DALIService();
+//        service = new DALIService();
     }
 
     @GetMapping("/controllers")

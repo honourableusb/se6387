@@ -62,10 +62,10 @@ public class UserService implements IUserService  {
     }
 
     public ResponseEntity getUser(String username) {
-        User user = this.firebaseService.getUser(username);
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-        }
+//        User user = this.firebaseService.getUser(username);
+//        if (user == null) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+//        }
         return ResponseEntity.ok(user);
     }
 }

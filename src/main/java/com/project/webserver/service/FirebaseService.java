@@ -30,17 +30,11 @@ public class FirebaseService {
     @Resource
     public Environment env;
     private Firestore firestore;// Inject the path from application.properties
-    @Value("${firebase.credentials.path}")
-    private String path = "/Users/matthewhaskell/Documents/freightflow-7c94c-firebase-adminsdk-fbsvc-d9199f8420.json";
-
-    public String getPath() {
-        return path;
-    }
 
     public FirebaseService() {
         try {
             System.out.println("Reached Firestore Constructor");
-            FileInputStream serviceAccount = new FileInputStream(getPath());
+            FileInputStream serviceAccount = new FileInputStream("/Users/aditilve/Desktop/Application/freightflow-7c94c-firebase-adminsdk-fbsvc-d9199f8420.json");
 
             FirebaseOptions options = new FirebaseOptions.Builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
@@ -63,6 +57,9 @@ public class FirebaseService {
             System.out.println("Reached Firestore addUserDB");
             Firestore db = FirestoreClient.getFirestore();
             // Use username as document ID
+            if (user.getUsername() == null || user.getUsername().isEmpty()) {
+                throw new IllegalArgumentException("'username' must be a non-empty String");
+            }
             DocumentReference docRef = db.collection("users").document(user.getUsername());
             Map<String, Object> userData = new HashMap<>();
             userData.put("username", user.getUsername());
@@ -88,6 +85,9 @@ public class FirebaseService {
     private boolean userExists(User user) throws ExecutionException, InterruptedException {
         System.out.println("Get user info");
         Firestore db = FirestoreClient.getFirestore();
+        if (user.getUsername() == null || user.getUsername().isEmpty()) {
+            throw new IllegalArgumentException("'username' must be a non-empty String");
+        }
         DocumentReference ref = db.collection("users").document(user.getUsername());
         ApiFuture<DocumentSnapshot> future = ref.get();
         DocumentSnapshot doc = future.get();

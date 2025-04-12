@@ -4,6 +4,9 @@ import com.project.webserver.model.airport.*;
 import com.project.webserver.service.FirebaseService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.util.Random;
 
 import java.util.*;
@@ -11,6 +14,7 @@ import java.util.stream.Collectors;
 
 import static com.project.webserver.service.Constants.*;
 
+@Service
 public class AirportService {
     //TODO these three could have a partner on firebase for persistence
     static Map<String, Flight> flightDB;
@@ -22,6 +26,11 @@ public class AirportService {
         populateFlights();
         initializeCargoBays();
         initializeParkingBays();
+        System.out.println("Flight DB contents in Airport Service Constructor: ");
+        for (Map.Entry<String, Flight> entry : flightDB.entrySet()) {
+            Flight flight = entry.getValue();
+            System.out.println("Flight Number: " + flight.getTailNumber() + ", Status: " + flight.getState());
+        }
     }
 
     //------------------------------service methods------------------------------
@@ -39,13 +48,14 @@ public class AirportService {
         return ResponseEntity.ok(flightDB.get(tail));
     }
 
-    public ResponseEntity updateFlight(Flight flight) {
+    public Flight updateFlight(Flight flight) {
         //check flight exists
         if (!flightExists(flight.getTailNumber())) {
-            return noFlightFound(flight.getTailNumber());
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Flight " + flight.getFlightNumber() + " not found");
         }
         flightDB.put(flight.getTailNumber(), flight);
-        return ResponseEntity.ok("Successfully updated flight %s".formatted(flight.getTailNumber()));
+        return flightDB.get(flight.getTailNumber());
     }
 
     //------------------------------cargo bays------------------------------
@@ -228,6 +238,15 @@ public class AirportService {
     //------------------------------worker methods------------------------------
 
     public boolean flightExists(String wing) {
+        wing = wing.trim().toUpperCase();
+        System.out.println("Inside Flight exists:"+wing);
+
+        for (Map.Entry<String, Flight> entry : flightDB.entrySet()) {
+            String flightNumber = entry.getKey();
+            Flight flight = entry.getValue();
+            System.out.println("Flight Number: " + flightNumber + ", Flight Status: " + flight.getState() + ", Landing Time: " + flight.getLandingTime());
+        }
+//        System.out.println("Checking Wing:"+wing);
         return flightDB.containsKey(wing);
     }
 
@@ -248,7 +267,8 @@ public class AirportService {
     }
 
     public boolean userExists(String username) {
-        return this.firebaseService.getUser(username) != null;
+//        return this.firebaseService.getUser(username) != null;
+        return true;
     }
 
     public boolean cargoBayReservedBy(String id, String truck) {
@@ -294,6 +314,10 @@ public class AirportService {
             Flight flight = generateFlight();
             flightDB.put(flight.getTailNumber(), flight);
         }
+        System.out.println("Flight Populated:");
+        for (Map.Entry<String, Flight> entry : flightDB.entrySet()) {
+            System.out.println("TailNumber: " + entry.getKey() + ", Flight Details: " + entry.getValue());
+        }
     }
 
     private Flight generateFlight() {
@@ -302,9 +326,34 @@ public class AirportService {
         flight.setLandingTime(generateLandingTime());
         flight.setTailNumber(generateTailNumber());
         flight.setState(randomState());
+        flight.setTerminal(generateTerminal());
+        flight.setArrivalAirport(generateArrivalAirport());
+        flight.setDestinationAirport(generateDestinationAirport());
+        flight.setAirlineName(generateAirlineName());
         return flight;
     }
-
+    private AirlineName generateAirlineName() {
+        int val = new Random().nextInt(3);
+        return switch (val) {
+            case 0 -> AirlineName.AmericanAirlines;
+            case 1 -> AirlineName.DeltaAirlines;
+            case 2 -> AirlineName.SouthwestAirlines;
+            default -> throw new IllegalStateException("Unexpected value: " + val);
+        };
+    }
+    private ArrivalAirport generateArrivalAirport() {
+        int val = new Random().nextInt(4);
+        return switch (val) {
+            case 0 -> ArrivalAirport.ATL;
+            case 1 -> ArrivalAirport.JFK;
+            case 2 -> ArrivalAirport.LAX;
+            case 3 -> ArrivalAirport.ORD;
+            default -> throw new IllegalStateException("Unexpected value: " + val);
+        };
+    }
+    private DestinationAirport generateDestinationAirport() {
+        return DestinationAirport.DFW;
+    }
     private Date generateLandingTime() {
         long timestamp = System.currentTimeMillis();
 
@@ -316,11 +365,23 @@ public class AirportService {
     }
 
     private FlightState randomState() {
-        int val = new Random().nextInt(3);
+        int val = new Random().nextInt(1);
         return switch (val) {
-            case 0 -> FlightState.EARLY;
-            case 1 -> FlightState.DELAYED;
-            case 2 -> FlightState.ON_TIME;
+//            case 0 -> FlightState.EARLY;
+//            case 1 -> FlightState.DELAYED;
+//            case 2 -> FlightState.ON_TIME;
+            case 0 -> FlightState.LANDED;
+            default -> throw new IllegalStateException("Unexpected value: " + val);
+        };
+    }
+
+    public Terminal generateTerminal() {
+        int val = new Random().nextInt(4);
+        return switch (val) {
+            case 0 -> Terminal.A;
+            case 1 -> Terminal.B;
+            case 2 -> Terminal.C;
+            case 3 -> Terminal.D;
             default -> throw new IllegalStateException("Unexpected value: " + val);
         };
     }
