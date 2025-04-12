@@ -1,12 +1,13 @@
 package com.project.webserver.controller.external.controller;
 
 import com.project.webserver.service.external.AirportService;
+import jakarta.websocket.server.PathParam;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 
-@RequestMapping("/airport")
+//@RequestMapping("/airport")
 public class AirportController {
     private final AirportService service = new AirportService();
 
@@ -28,7 +29,7 @@ public class AirportController {
     public ResponseEntity<Object> getAllCargoBays() {
         return service.getAllCargoBays();
     }
-    
+
     @GetMapping("/cargo/{id}")
     public ResponseEntity<Object> getCargoBay(@PathVariable("id") String id) {
         return service.getCargoBay(id);

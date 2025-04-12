@@ -64,6 +64,9 @@ public class FirebaseService {
 //            System.out.println("Reached Firestore addUserDB");
             Firestore db = FirestoreClient.getFirestore();
             // Use username as document ID
+            if (user.getUsername() == null || user.getUsername().isEmpty()) {
+                throw new IllegalArgumentException("'username' must be a non-empty String");
+            }
             DocumentReference docRef = db.collection("users").document(user.getUsername());
             Map<String, Object> userData = new HashMap<>();
             userData.put("username", user.getUsername());
@@ -89,6 +92,9 @@ public class FirebaseService {
     private boolean userExists(User user) throws ExecutionException, InterruptedException {
 //        System.out.println("Get user info");
         Firestore db = FirestoreClient.getFirestore();
+        if (user.getUsername() == null || user.getUsername().isEmpty()) {
+            throw new IllegalArgumentException("'username' must be a non-empty String");
+        }
         DocumentReference ref = db.collection("users").document(user.getUsername());
         ApiFuture<DocumentSnapshot> future = ref.get();
         DocumentSnapshot doc = future.get();

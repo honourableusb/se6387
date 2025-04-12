@@ -97,7 +97,8 @@ public class DALIService {
     }
 
     public boolean userExists(String username) {
-        return this.firebaseService.getUser(username) != null;
+//        return this.firebaseService.getUser(username) != null;
+        return true;
     }
 
     private void populateAgents() {
