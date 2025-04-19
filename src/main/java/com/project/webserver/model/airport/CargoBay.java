@@ -1,9 +1,11 @@
 package com.project.webserver.model.airport;
 
+import com.project.webserver.model.dali.Coordinate;
+
 public class CargoBay {
     String id;
     CargoBayState state;
-    //Point location; //for the location to navigate to
+    Coordinate location;
     String truckID;
 
     public CargoBay() {
@@ -22,6 +24,10 @@ public class CargoBay {
         this.truckID = id;
     }
 
+    public void setLocation(Coordinate location) {
+        this.location = location;
+    }
+
     //TODO maybe a clear truck id method?
 
     public String getId() {
@@ -34,5 +40,9 @@ public class CargoBay {
 
     public String getTruckID() {
         return this.truckID;
+    }
+
+    public Coordinate getLocation() {
+        return location;
     }
 }

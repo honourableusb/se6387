@@ -1,12 +1,20 @@
 package com.project.webserver.service.external;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.webserver.model.airport.*;
+import com.project.webserver.model.dali.Coordinate;
 import com.project.webserver.service.FirebaseService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Random;
 
 import java.util.*;
@@ -21,6 +29,7 @@ public class AirportService {
     static Map<String, CargoBay> cargoBayDB;
     static Map<String, ParkingBay> parkingBayDB;
     FirebaseService firebaseService = new FirebaseService();
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public AirportService() {
         populateFlights();
@@ -379,7 +388,18 @@ public class AirportService {
     private void initializeCargoBays() { //I bet there's a way to break this into a more generic version
         cargoBayDB = new HashMap<>();
         Random rand = new Random();
+        List<Coordinate> coordinates = new ArrayList<>();
         int unavailable = rand.nextInt(CARGO_BAY_COUNT);
+        //TODO load bay info
+        ObjectMapper mapper = new ObjectMapper();
+        logger.info("Loading coordinates from resource file %s".formatted(CARGO_COORDINATE_FILE));
+        try {
+            JsonNode node = mapper.readTree(new File(CARGO_COORDINATE_FILE));
+            coordinates = mapper.convertValue(node, new TypeReference<>(){});
+        } catch (IOException e) {
+            logger.error("Error loading coordinates from resource file: ", e);
+            throw new RuntimeException(e);
+        }
         for (int i = 0; i < CARGO_BAY_COUNT; i++) {
             CargoBay bay = new CargoBay();
             bay.setId("CARGO#"+ i);
@@ -388,6 +408,7 @@ public class AirportService {
             } else {
                 bay.setState(CargoBayState.AVAILABLE);
             }
+            bay.setLocation(coordinates.get(i));
             cargoBayDB.put(bay.getId(), bay);
         }
     }
@@ -396,6 +417,16 @@ public class AirportService {
         parkingBayDB = new HashMap<>();
         Random rand = new Random();
         int unavailable = rand.nextInt(PARKING_BAY_COUNT);
+        List<Coordinate> coordinates = new ArrayList<>();
+        ObjectMapper mapper = new ObjectMapper();
+        logger.info("Loading coordinates from resource file %s".formatted(PARKING_COORDINATE_FILE));
+        try {
+            JsonNode node = mapper.readTree(new File(PARKING_COORDINATE_FILE));
+            coordinates = mapper.convertValue(node, new TypeReference<>(){});
+        } catch (IOException e) {
+            logger.error("Error loading coordinates from resource file: ", e);
+            throw new RuntimeException(e);
+        }
         for (int i = 0; i < PARKING_BAY_COUNT; i++) {
             ParkingBay bay = new ParkingBay();
             bay.setId("PARK#"+ i);
@@ -404,6 +435,7 @@ public class AirportService {
             } else {
                 bay.setState(ParkingBayState.AVAILABLE);
             }
+            bay.setLocation(coordinates.get(i));
             parkingBayDB.put(bay.getId(), bay);
         }
     }
