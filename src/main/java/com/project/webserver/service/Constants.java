@@ -6,7 +6,8 @@ public class Constants {
     public final static int CARGO_BAY_COUNT = 12;
     public final static int PARKING_BAY_COUNT = 12;
     public final static int ASSIGNMENT_STARTING_COUNT = 3;
-
+    public final static String PARKING_COORDINATE_FILE = "src/main/resources/parking_coordinates.json";
+    public final static String CARGO_COORDINATE_FILE = "src/main/resources/cargo_coordinates.json";
 
     //------------------------------DALI------------------------------
     public final static int DALI_AGENT_COUNT = 13;

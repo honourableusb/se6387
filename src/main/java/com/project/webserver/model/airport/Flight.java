@@ -35,6 +35,22 @@ public class Flight {
         return this.state;
     }
 
+    public String getFlightNumber() {
+        return flightNumber;
+    }
+
+    public AirlineName getAirlineName() {
+        return airlineName;
+    }
+
+    public ArrivalAirport getArrivalAirport() {
+        return arrivalAirport;
+    }
+
+    public DestinationAirport getDestinationAirport() {
+        return destinationAirport;
+    }
+
     public void setTailNumber(String flightNumber) {
         this.flightNumber = flightNumber;
     }
@@ -45,6 +61,22 @@ public class Flight {
 
     public void setState(FlightState state) {
         this.state = state;
+    }
+
+    public void setAirlineName(AirlineName airlineName) {
+        this.airlineName = airlineName;
+    }
+
+    public void setArrivalAirport(ArrivalAirport arrivalAirport) {
+        this.arrivalAirport = arrivalAirport;
+    }
+
+    public void setDestinationAirport(DestinationAirport destinationAirport) {
+        this.destinationAirport = destinationAirport;
+    }
+
+    public void setFlightNumber(String flightNumber) {
+        this.flightNumber = flightNumber;
     }
 
     public Terminal getTerminal() {

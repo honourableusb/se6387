@@ -1,9 +1,11 @@
 package com.project.webserver.model.airport;
 
+import com.project.webserver.model.dali.Coordinate;
+
 public class ParkingBay {
     String id;
     ParkingBayState state;
-    //Point location; //for navigation directly to the position
+    Coordinate location;
     long truckArriveTime;
     String truckID;
 
@@ -27,6 +29,10 @@ public class ParkingBay {
         this.truckID = truck;
     }
 
+    public void setLocation(Coordinate location) {
+        this.location = location;
+    }
+
     public String getId() {
         return this.id;
     }
@@ -41,5 +47,9 @@ public class ParkingBay {
 
     public String getTruckID() {
         return this.truckID;
+    }
+
+    public Coordinate getLocation() {
+        return location;
     }
 }
